@@ -2296,3 +2296,165 @@ nums.forEach((n) => console.log(n)); // Logs each value
 - .sort(): Arrange values (e.g., scores, names, timestamps).
 - .forEach(): Perform side effects (e.g., logging, DOM updates).
 
+### **JSON.stringify()**:
+
+Converts a JavaScript object into a JSON string.
+
+---
+Example:
+
+```js
+const obj = { name: "Alice", age: 25 };
+const jsonStr = JSON.stringify(obj);
+console.log(jsonStr); // '{"name":"Alice","age":25}'
+```
+### **JSON.parse()**:
+
+Converts a JSON string back into a JavaScript object.
+
+---
+```js
+const jsonStr = '{"name":"Alice","age":25}';
+const obj = JSON.parse(jsonStr);
+console.log(obj); // { name: 'Alice', age: 25 }
+```
+In short:
+
+- stringify → object ➔ string
+- parse → string ➔ object
+
+|Method | Pros | Cons|
+|-------|------|-----|
+JSON.parse(JSON.stringify(obj)) | Simple and fast for plain objects | Loses functions, dates, special types; crashes with circular refs
+structuredClone(obj) | Native, safe, handles circular refs, dates, regexps | Only works in modern browsers (or Node 17+), doesn't copy functions
+Manual recursion / libraries (lodash.cloneDeep) | Very powerful, handles almost anything | Adds dependency or needs custom code
+
+Best native way (modern): structuredClone
+
+```js
+const deep = structuredClone(original);
+```
+- Supports objects, arrays, dates, maps, sets, etc.
+- Handles circular references ✅
+- But won't clone functions (and that's okay in 99% of cases).
+
+Best library way (universal): lodash.cloneDeep
+
+```js
+import cloneDeep from 'lodash/cloneDeep';
+
+const deep = cloneDeep(original);
+```
+- Handles almost everything (functions, special objects).
+- Stable across all environments.
+
+When to still use JSON.parse(JSON.stringify())
+- If your object is simple (plain data, no functions, no dates, no circular refs).
+- When you want ultra-fast deep copy and small bundle size.
+
+Summary:
+- 🔥 Use structuredClone if available and no functions need cloning.
+- 🔥 Use lodash.cloneDeep if you want bulletproof deep copy across all types.
+- ⚡ Use JSON trick for quick simple copies.
+
+|Feature | Regular Function | Arrow Function|
+|--------|------------------|---------------|
+|Syntax | function keyword | => (fat arrow)|
+this behavior | Dynamic (this depends on how it’s called) | Lexical (this is inherited from where it’s defined)
+Hoisting | Yes (can call before it’s declared) | No (must define first)
+arguments object | Available | Not available
+Best used for | Methods, complex functions | Short functions, callbacks
+
+🎯 Main important difference → this
+Regular function: this changes based on how it's called.
+```js
+const obj = {
+  name: 'Abubakar',
+  sayHello: function () {
+    console.log(this.name);
+  }
+};
+
+obj.sayHello(); // Abubakar ✅
+```
+
+Arrow function: this doesn't change, it takes this from the outer scope.
+
+```js
+const obj = {
+  name: 'Abubakar',
+  sayHello: () => {
+    console.log(this.name);
+  }
+};
+
+obj.sayHello(); // undefined ❌ (because `this` is not `obj`, it's the outer/global `this`)
+```
+
+|If you need this inside the function | 👉 Use regular function|
+|-------------------------------------|-------------------------|
+|If you don't care about this (ex: small callbacks, map, filter, etc) | 👉 Use arrow function|
+
+
+### 🚀 What is a Closure?
+
+Closure means:
+
+A function remembers the variables from where it was created, even if called somewhere else later.
+
+In short:
+- ✅ A closure captures the variables around it.
+- ✅ It remembers them forever.
+
+Example of Closure:
+---
+
+```js
+function outer() {
+  const name = 'Abubakar';
+
+  function inner() {
+    console.log(name); // inner remembers `name`
+  }
+
+  return inner;
+}
+
+const fn = outer(); // outer() runs and returns inner
+fn(); // 'Abubakar' ✅
+```
+
+    🔵 Even though outer() has finished,
+    🔵 inner() still remembers the variable name!
+    🔵 That's because closure was created.
+
+
+
+### 🎯 What is Lexical Environment (or Context)?
+
+- "Lexical" = where code is physically written.
+- Lexical Environment = the variables + functions that are available where the function is created.
+
+Think of it like a "backpack" 🎒:
+
+- Every function carries a backpack.
+- Inside the backpack: all the variables around when the function was defined (not when it’s called).
+
+Visualizing the above example:
+
+|Scope | What it Contains |
+|------|------------------|
+Global | outer
+outer()'s Lexical Env | name: 'Abubakar', inner
+inner()'s Lexical Env | (has access to outer's name)
+
+    When fn() is called later, it looks into its backpack, finds name, and prints it!
+
+🧠 In Simple Words:
+
+|Concept | Meaning|
+|--------|--------|
+Closure | A function remembering its surrounding variables even after the outer function finishes.
+Lexical Environment | All the variables/functions that exist in the place where your function was defined.
+
+
